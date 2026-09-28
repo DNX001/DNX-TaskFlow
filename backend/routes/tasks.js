@@ -3,6 +3,24 @@ const Task = require("../models/Task");
 
 const router = express.Router();
 
+// GET /api/tasks
+// Get all tasks
+router.get("/", async (req, res) => {
+  try {
+    const tasks = await Task.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      tasks,
+    });
+  } catch (error) {
+    console.error("Error fetching tasks:", error.message);
+
+    res.status(500).json({
+      message: "Server error while fetching tasks.",
+    });
+  }
+});
+
 // POST /api/tasks
 // Create a new task
 router.post("/", async (req, res) => {
