@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Task = require("../models/Task");
 
 const router = express.Router();
@@ -57,6 +58,52 @@ router.post("/", async (req, res) => {
 
     res.status(500).json({
       message: "Server error while creating task.",
+    });
+  }
+});
+
+// PUT /api/tasks/:id/complete
+// Mark a task as completed
+router.put("/:id/complete", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid task ID.",
+      });
+    }
+
+    // Find the task
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({
+        message: "Task not found.",
+      });
+    }
+
+    // Prevent completing an already completed task
+    if (task.completed) {
+      return res.status(400).json({
+        message: "Task is already completed.",
+      });
+    }
+
+    // Mark as completed and save
+    task.completed = true;
+    await task.save();
+
+    res.status(200).json({
+      message: "Task marked as completed.",
+      task,
+    });
+  } catch (error) {
+    console.error("Error completing task:", error.message);
+
+    res.status(500).json({
+      message: "Server error while completing task.",
     });
   }
 });
