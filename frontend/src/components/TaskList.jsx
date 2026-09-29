@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 function TaskList({ refreshKey }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [completingId, setCompletingId] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("All");
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:5000/api/tasks");
+      let url = "http://localhost:5000/api/tasks";
+
+      if (priorityFilter !== "All") {
+        url += `?priority=${priorityFilter}`;
+      }
+
+      const response = await fetch(url);
       const data = await response.json();
 
       if (!response.ok) {
@@ -24,11 +31,11 @@ function TaskList({ refreshKey }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [priorityFilter]);
 
   useEffect(() => {
     fetchTasks();
-  }, [refreshKey]);
+  }, [fetchTasks, refreshKey]);
 
   const handleComplete = async (taskId) => {
     try {
@@ -56,63 +63,78 @@ function TaskList({ refreshKey }) {
     }
   };
 
-  if (loading) {
-    return <p className="task-list-message">Loading tasks...</p>;
-  }
-
-  if (error && tasks.length === 0) {
-    return <p className="task-list-message error-message">{error}</p>;
-  }
-
-  if (tasks.length === 0) {
-    return <p className="task-list-message">No tasks yet.</p>;
-  }
-
   return (
     <section className="task-list">
       <div className="task-list-header">
-        <h2>Your Tasks</h2>
-        <span>{tasks.length} tasks</span>
+        <div>
+          <h2>Your Tasks</h2>
+          <span>
+            {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+          </span>
+        </div>
+
+        <div className="priority-filters">
+          {["All", "Low", "Medium", "High"].map((priority) => (
+            <button
+              key={priority}
+              className={`filter-button ${
+                priorityFilter === priority ? "active" : ""
+              }`}
+              onClick={() => setPriorityFilter(priority)}
+            >
+              {priority}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && <p className="task-list-message error-message">{error}</p>}
 
-      <div className="task-items">
-        {tasks.map((task) => (
-          <article
-            className={`task-card ${task.completed ? "completed" : ""}`}
-            key={task._id}
-          >
-            <div className="task-card-content">
-              <div>
-                <h3>{task.title}</h3>
+      {loading ? (
+        <p className="task-list-message">Loading tasks...</p>
+      ) : tasks.length === 0 ? (
+        <p className="task-list-message">
+          No {priorityFilter === "All" ? "" : priorityFilter.toLowerCase()} tasks
+          found.
+        </p>
+      ) : (
+        <div className="task-items">
+          {tasks.map((task) => (
+            <article
+              className={`task-card ${task.completed ? "completed" : ""}`}
+              key={task._id}
+            >
+              <div className="task-card-content">
+                <div>
+                  <h3>{task.title}</h3>
 
-                <div className="task-meta">
-                  <span
-                    className={`priority priority-${task.priority.toLowerCase()}`}
-                  >
-                    {task.priority}
-                  </span>
+                  <div className="task-meta">
+                    <span
+                      className={`priority priority-${task.priority.toLowerCase()}`}
+                    >
+                      {task.priority}
+                    </span>
 
-                  <span>{task.completed ? "Completed" : "Pending"}</span>
+                    <span>{task.completed ? "Completed" : "Pending"}</span>
+                  </div>
                 </div>
-              </div>
 
-              {!task.completed && (
-                <button
-                  className="complete-button"
-                  onClick={() => handleComplete(task._id)}
-                  disabled={completingId === task._id}
-                >
-                  {completingId === task._id
-                    ? "Completing..."
-                    : "Mark Complete"}
-                </button>
-              )}
-            </div>
-          </article>
-        ))}
-      </div>
+                {!task.completed && (
+                  <button
+                    className="complete-button"
+                    onClick={() => handleComplete(task._id)}
+                    disabled={completingId === task._id}
+                  >
+                    {completingId === task._id
+                      ? "Completing..."
+                      : "Mark Complete"}
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

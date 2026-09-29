@@ -230,3 +230,42 @@
     flex-direction: column;
   }
 }
+.priority-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.filter-button {
+  padding: 7px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-button:hover {
+  background: #f3f4f6;
+}
+
+.filter-button.active {
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .task-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .priority-filters {
+    justify-content: flex-start;
+  }
+}
