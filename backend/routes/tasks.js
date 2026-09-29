@@ -80,8 +80,30 @@ router.post("/", async (req, res) => {
   }
 });
 
+// PUT /api/tasks/complete-all
+// Mark all pending tasks as completed
+router.put("/complete-all", async (req, res) => {
+  try {
+    const result = await Task.updateMany(
+      { completed: false },
+      { $set: { completed: true } }
+    );
+
+    res.status(200).json({
+      message: "All tasks marked as completed.",
+      updatedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error completing all tasks:", error.message);
+
+    res.status(500).json({
+      message: "Server error while completing all tasks.",
+    });
+  }
+});
+
 // PUT /api/tasks/:id/complete
-// Mark a task as completed
+// Mark a single task as completed
 router.put("/:id/complete", async (req, res) => {
   try {
     const { id } = req.params;

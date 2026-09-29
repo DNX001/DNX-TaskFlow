@@ -5,6 +5,7 @@ function TaskList({ refreshKey }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [completingId, setCompletingId] = useState("");
+  const [completingAll, setCompletingAll] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState("All");
 
   const fetchTasks = useCallback(async () => {
@@ -63,6 +64,34 @@ function TaskList({ refreshKey }) {
     }
   };
 
+  const handleCompleteAll = async () => {
+    try {
+      setCompletingAll(true);
+      setError("");
+
+      const response = await fetch(
+        "http://localhost:5000/api/tasks/complete-all",
+        {
+          method: "PUT",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to complete all tasks.");
+      }
+
+      await fetchTasks();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCompletingAll(false);
+    }
+  };
+
+  const hasPendingTasks = tasks.some((task) => !task.completed);
+
   return (
     <section className="task-list">
       <div className="task-list-header">
@@ -73,18 +102,28 @@ function TaskList({ refreshKey }) {
           </span>
         </div>
 
-        <div className="priority-filters">
-          {["All", "Low", "Medium", "High"].map((priority) => (
-            <button
-              key={priority}
-              className={`filter-button ${
-                priorityFilter === priority ? "active" : ""
-              }`}
-              onClick={() => setPriorityFilter(priority)}
-            >
-              {priority}
-            </button>
-          ))}
+        <div className="task-list-actions">
+          <div className="priority-filters">
+            {["All", "Low", "Medium", "High"].map((priority) => (
+              <button
+                key={priority}
+                className={`filter-button ${
+                  priorityFilter === priority ? "active" : ""
+                }`}
+                onClick={() => setPriorityFilter(priority)}
+              >
+                {priority}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="complete-all-button"
+            onClick={handleCompleteAll}
+            disabled={!hasPendingTasks || completingAll}
+          >
+            {completingAll ? "Completing..." : "Mark All Complete"}
+          </button>
         </div>
       </div>
 
