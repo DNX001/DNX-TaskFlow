@@ -5,10 +5,28 @@ const Task = require("../models/Task");
 const router = express.Router();
 
 // GET /api/tasks
-// Get all tasks
+// Get all tasks, optionally filtered by priority
 router.get("/", async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 });
+    const { priority } = req.query;
+
+    const allowedPriorities = ["Low", "Medium", "High"];
+
+    // Validate priority if provided
+    if (priority && !allowedPriorities.includes(priority)) {
+      return res.status(400).json({
+        message: "Priority must be Low, Medium, or High.",
+      });
+    }
+
+    // Build MongoDB filter
+    const filter = {};
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    const tasks = await Task.find(filter).sort({ createdAt: -1 });
 
     res.status(200).json({
       tasks,
