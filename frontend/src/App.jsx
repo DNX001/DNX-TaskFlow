@@ -1,7 +1,15 @@
+import { useState } from "react";
 import "./App.css";
 import AddTaskForm from "./components/AddTaskForm";
+import TaskList from "./components/TaskList";
 
 function App() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleTaskAdded = () => {
+    setRefreshKey((currentKey) => currentKey + 1);
+  };
+
   return (
     <main className="app">
       <section className="taskflow">
@@ -14,7 +22,9 @@ function App() {
         </header>
 
         <section className="workspace">
-          <AddTaskForm />
+          <AddTaskForm onTaskAdded={handleTaskAdded} />
+
+          <TaskList refreshKey={refreshKey} />
         </section>
       </section>
     </main>

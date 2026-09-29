@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function AddTaskForm() {
+function AddTaskForm({ onTaskAdded }) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [error, setError] = useState("");
@@ -38,9 +38,13 @@ function AddTaskForm() {
         throw new Error(data.message || "Failed to create task.");
       }
 
-      setSuccess("Task added successfully.");
-      setTitle("");
-      setPriority("Medium");
+    setSuccess("Task added successfully.");
+setTitle("");
+setPriority("Medium");
+
+if (onTaskAdded) {
+  onTaskAdded();
+}
     } catch (err) {
       setError(err.message);
     } finally {
