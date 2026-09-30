@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL } from "../config";
 
 function AddTaskForm({ onTaskAdded }) {
   const [title, setTitle] = useState("");
@@ -21,7 +22,7 @@ function AddTaskForm({ onTaskAdded }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/tasks", {
+      const response = await fetch(`${API_URL}/api/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,13 +39,13 @@ function AddTaskForm({ onTaskAdded }) {
         throw new Error(data.message || "Failed to create task.");
       }
 
-    setSuccess("Task added successfully.");
-setTitle("");
-setPriority("Medium");
+      setSuccess("Task added successfully.");
+      setTitle("");
+      setPriority("Medium");
 
-if (onTaskAdded) {
-  onTaskAdded();
-}
+      if (onTaskAdded) {
+        onTaskAdded();
+      }
     } catch (err) {
       setError(err.message);
     } finally {

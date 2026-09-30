@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { API_URL } from "../config";
 
 function TaskList({ refreshKey }) {
   const [tasks, setTasks] = useState([]);
@@ -13,7 +14,7 @@ function TaskList({ refreshKey }) {
       setLoading(true);
       setError("");
 
-      let url = "http://localhost:5000/api/tasks";
+      let url = `${API_URL}/api/tasks`;
 
       if (priorityFilter !== "All") {
         url += `?priority=${priorityFilter}`;
@@ -44,7 +45,7 @@ function TaskList({ refreshKey }) {
       setError("");
 
       const response = await fetch(
-        `http://localhost:5000/api/tasks/${taskId}/complete`,
+        `${API_URL}/api/tasks/${taskId}/complete`,
         {
           method: "PUT",
         }
@@ -70,7 +71,7 @@ function TaskList({ refreshKey }) {
       setError("");
 
       const response = await fetch(
-        "http://localhost:5000/api/tasks/complete-all",
+        `${API_URL}/api/tasks/complete-all`,
         {
           method: "PUT",
         }
