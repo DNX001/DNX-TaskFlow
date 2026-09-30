@@ -85,6 +85,7 @@ DNX-TaskFlow/
     │   │   └── TaskList.jsx
     │   ├── App.jsx
     │   ├── App.css
+    │   ├── config.js
     │   ├── index.css
     │   └── main.jsx
     ├── package.json
@@ -237,6 +238,20 @@ The development frontend runs at:
 http://localhost:5173
 ```
 
+The frontend reads its API base URL from Vite:
+
+```js
+import.meta.env.VITE_API_URL
+```
+
+When `VITE_API_URL` is not defined locally, the app falls back to:
+
+```text
+http://localhost:5000
+```
+
+For deployment, set `VITE_API_URL` to the public backend URL.
+
 ## Testing Workflow
 
 The application was tested incrementally rather than only after completion.
@@ -269,19 +284,27 @@ For a production system, additional measures such as authentication, authorizati
 
 ## Deployment
 
-The project is designed for a split deployment:
+DNX TaskFlow is deployed on Render using a split frontend/backend architecture:
 
 ```text
-Public React frontend
+Render Static Site (React + Vite)
         │
         ▼
-Public Express backend
+Render Web Service (Express API)
         │
         ▼
 MongoDB Atlas
 ```
 
-The backend can be deployed as a Render Web Service and the frontend as a Render Static Site. Public deployment URLs can be added here once deployment is complete.
+### Live Application
+
+- **Frontend:** https://dnx-taskflow.onrender.com/
+- **Backend API:** https://dnx-taskflow-api.onrender.com/
+- **Tasks endpoint:** https://dnx-taskflow-api.onrender.com/api/tasks
+
+The frontend uses the `VITE_API_URL` environment variable during the Vite production build to communicate with the deployed backend.
+
+> The backend uses Render's free instance tier, so the first request after a period of inactivity may take longer while the service spins up.
 
 ## Development Approach
 
